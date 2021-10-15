@@ -40,6 +40,15 @@ class Ui(QtWidgets.QMainWindow):
         self.btnFlipCampuran = self.findChild(QtWidgets.QPushButton, 'btnMirrorCampuran')
         self.btnFlipCampuran.clicked.connect(self.MirrormehEmmYea)
 
+        self.btnConvolusi = self.findChild(QtWidgets.QPushButton, 'btnConvolve')
+        self.btnConvolusi.clicked.connect(self.Convolusi)
+
+        self.btnDilasi = self.findChild(QtWidgets.QPushButton, 'btnDilasi')
+        self.btnDilasi.clicked.connect(self.Dilate)
+
+        self.btnErosi = self.findChild(QtWidgets.QPushButton, 'btnErosi')
+        self.btnErosi.clicked.connect(self.Erode)
+
         self.addToolBar(NavigationToolbar(self.Histogram.canvas, self))
 
         self.show()
@@ -63,8 +72,11 @@ class Ui(QtWidgets.QMainWindow):
         self.imageMain.setPixmap(self.rezizeandShow(self.img))
         self.drawHistogram_tab1(self.img)
         #img Asli tab 2
-        self.asli = self.findChild(QtWidgets.QLabel, 'image_Asli')
-        self.asli.setPixmap(self.rezizeandShow(self.img))
+        self.asli2 = self.findChild(QtWidgets.QLabel, 'image_Asli')
+        self.asli2.setPixmap(self.rezizeandShow(self.img))
+        #img Asli tab 3
+        self.asli_3_togrey = self.findChild(QtWidgets.QLabel, 'image_Asli_2')
+        self.asli_3_togrey.setPixmap(self.rezizeandShow(self.getGreyVersion(self.img)))
 
         #img props
         self.imgProperties = self.findChild(QtWidgets.QTextEdit, 'txt_ImgProperties_2')
@@ -74,82 +86,7 @@ class Ui(QtWidgets.QMainWindow):
         self.imgValues = self.findChild(QtWidgets.QTextEdit, 'txt_PixelValue_2')
         self.imgValues.setPlainText(self.getPixelValue(self.img))
 
-    def Negatemeh(self):
-        piximg = self.img.copy()
-        piximg = self.getNegasi(piximg)
-        #img Hasil tab 2
-        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
-        self.hasil.setPixmap(self.rezizeandShow(piximg))
-        self.drawHistogram_tab2(piximg)
-
-    def Kembanginmeh(self):
-        piximg = self.img.copy()
-        piximg = self.getPengembangan(piximg)
-        #img Hasil tab 2
-        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
-        self.hasil.setPixmap(self.rezizeandShow(piximg))
-        self.drawHistogram_tab2(piximg)
-
-    def MirrormehHorizontally(self):
-        piximg = self.img.copy()
-        piximg = self.getMirrorHorizontal(piximg)
-        #img Hasil tab 2
-        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
-        self.hasil.setPixmap(self.rezizeandShow(piximg))
-        self.drawHistogram_tab2(piximg)
-
-    def MirrormehVertically(self):
-        piximg = self.img.copy()
-        piximg = self.getMirrorVertikal(piximg)
-        #img Hasil tab 2
-        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
-        self.hasil.setPixmap(self.rezizeandShow(piximg))
-        self.drawHistogram_tab2(piximg)
-
-    def MirrormehEmmYea(self):
-        piximg = self.img.copy()
-        piximg = self.getMirrorCampuran(piximg)
-        #img Hasil tab 2
-        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
-        self.hasil.setPixmap(self.rezizeandShow(piximg))
-        self.drawHistogram_tab2(piximg)
-
-
-    def rezizeandShow(self,img):
-        img_temp = img.copy()
-        try:
-            y,x,color = img_temp.shape
-        except:
-            y,x = img.shape
-            color = 1
-        
-        bytesPerLine = 3 * x
-        if(color== 1):
-            _pmap = QImage(img_temp, x, y, x, QImage.Format_Grayscale8)
-        else:
-            _pmap = QImage(img_temp, x, y, bytesPerLine, QImage.Format_RGB888)
-        
-        
-        _pmap = QPixmap(_pmap)
-        
-       
-        if(x==360 and y==240):
-            imgresized = _pmap.scaled(360, 240, QtCore.Qt.KeepAspectRatio)
-        else:
-            imgresized = _pmap.scaled(360, 240, QtCore.Qt.KeepAspectRatio)
-
-        # test = _pmap.toImage()
-        # test.pixel(0,0)
-        # for i in range(y):
-        #     for j in range(x):
-        #         print(f"{i,j} : {QtGui.qRed(test.pixel(i,j))},{QtGui.qGreen(test.pixel(i,j))},{QtGui.qBlue(test.pixel(i,j))}")
-
-        
-        
-        return imgresized
-
-        
-
+    #### TAB 1 Func
     def getImageProperties(self,img):
         try:
             ax,yx,color_depth = img.shape
@@ -197,6 +134,136 @@ class Ui(QtWidgets.QMainWindow):
                     # print(pixel_value)
 
         return textout
+
+    #### TAB 2 Func
+    def Negatemeh(self):
+        piximg = self.img.copy()
+        piximg = self.getNegasi(piximg)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab2(piximg)
+
+    def Kembanginmeh(self):
+        piximg = self.img.copy()
+        piximg = self.getPengembangan(piximg)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab2(piximg)
+
+    def MirrormehHorizontally(self):
+        piximg = self.img.copy()
+        piximg = self.getMirrorHorizontal(piximg)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab2(piximg)
+
+    def MirrormehVertically(self):
+        piximg = self.img.copy()
+        piximg = self.getMirrorVertikal(piximg)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab2(piximg)
+
+    def MirrormehEmmYea(self):
+        piximg = self.img.copy()
+        piximg = self.getMirrorCampuran(piximg)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab2(piximg)
+
+    #### TAB 3 Func
+    def Convolusi(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        w=np.asarray([[-1,-1,-1],
+                      [-1,8,-1],
+                      [-1,-1,-1]])
+        print("w")
+        print(w)
+        print()
+        piximg = cv2.filter2D(piximg, -1, w, borderType=cv2.BORDER_CONSTANT)
+        print(piximg)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab3(piximg)
+    
+    def Dilate(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        w=np.array([[0,1,0],
+                    [1,1,1],
+                    [0,1,0]], dtype=np.uint8)
+        piximg =  cv2.dilate(piximg, w,iterations = 10)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab3(piximg)
+        
+    def Erode(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        w=np.array([[0,1,0],
+                    [1,1,1],
+                    [0,1,0]], dtype=np.uint8)
+        piximg =  cv2.erode(piximg,w,iterations = 10)
+        #img Hasil tab 2
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.drawHistogram_tab3(piximg)
+
+
+    #################################################### helper func
+    # resize main
+    def rezizeandShow(self,img):
+        img_temp = img.copy()
+        try:
+            y,x,color = img_temp.shape
+        except:
+            y,x = img.shape
+            color = 1
+        
+        bytesPerLine = 3 * x
+        if(color== 1):
+            _pmap = QImage(img_temp, x, y, x, QImage.Format_Grayscale8)
+        else:
+            _pmap = QImage(img_temp, x, y, bytesPerLine, QImage.Format_RGB888)
+        
+        
+        _pmap = QPixmap(_pmap)
+        
+       
+        if(x==360 and y==240):
+            imgresized = _pmap.scaled(360, 240, QtCore.Qt.KeepAspectRatio)
+        else:
+            imgresized = _pmap.scaled(360, 240, QtCore.Qt.KeepAspectRatio)
+
+        # test = _pmap.toImage()
+        # test.pixel(0,0)
+        # for i in range(y):
+        #     for j in range(x):
+        #         print(f"{i,j} : {QtGui.qRed(test.pixel(i,j))},{QtGui.qGreen(test.pixel(i,j))},{QtGui.qBlue(test.pixel(i,j))}")
+
+        
+        
+        return imgresized
+
+    def getGreyVersion(self,img):
+        grey = img.copy()
+        try:
+            ax,yx,color_depth = grey.shape
+        except:
+            ax,yx = grey.shape
+            color_depth = 1
+        if(color_depth >1):
+            grey = cv2.cvtColor(grey, cv2.COLOR_BGR2GRAY)
+        return grey
+
 
     def getNegasi(self,img):
         negasi = img.copy()
@@ -297,6 +364,57 @@ class Ui(QtWidgets.QMainWindow):
         mirror = self.getMirrorHorizontal(img)
         mirror = self.getMirrorVertikal(mirror)
         return mirror
+
+
+    def drawHistogram_tab3(self,img):
+        read_img = img.copy()
+
+        try:
+            ax,yx,color_depth = read_img.shape
+        except:
+            ax,yx = read_img.shape
+            color_depth = 1
+
+        if(color_depth==1):
+            self.Red_Histogram_3.canvas.axes.clear()
+            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
+            self.Red_Histogram_3.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
+            self.Red_Histogram_3.canvas.axes.set_ylabel('Y', color='black')
+            self.Red_Histogram_3.canvas.axes.set_xlabel('X', color='black')
+            self.Red_Histogram_3.canvas.axes.set_title('Greyscale Histogram')
+            self.Red_Histogram_3.canvas.axes.set_facecolor('xkcd:wheat')
+            self.Red_Histogram_3.canvas.axes.grid()
+            self.Red_Histogram_3.canvas.draw()
+        else:
+            self.Red_Histogram_3.canvas.axes.clear()
+            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
+            self.Red_Histogram_3.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
+            self.Red_Histogram_3.canvas.axes.set_ylabel('Y', color='red')
+            self.Red_Histogram_3.canvas.axes.set_xlabel('X', color='red')
+            self.Red_Histogram_3.canvas.axes.set_title('Red_Histogram')
+            self.Red_Histogram_3.canvas.axes.set_facecolor('xkcd:wheat')
+            self.Red_Histogram_3.canvas.axes.grid()
+            self.Red_Histogram_3.canvas.draw()
+
+            self.Green_Histogram_3.canvas.axes.clear()
+            histr = cv2.calcHist([read_img],[1],None,[256],[0,256])
+            self.Green_Histogram_3.canvas.axes.plot(histr,color = 'g',linewidth=3.0)
+            self.Green_Histogram_3.canvas.axes.set_ylabel('Y', color='green')
+            self.Green_Histogram_3.canvas.axes.set_xlabel('X', color='green')
+            self.Green_Histogram_3.canvas.axes.set_title('Green_Histogram')
+            self.Green_Histogram_3.canvas.axes.set_facecolor('xkcd:wheat')
+            self.Green_Histogram_3.canvas.axes.grid()
+            self.Green_Histogram_3.canvas.draw()
+
+            self.Blue_Histogram_3.canvas.axes.clear()
+            histr = cv2.calcHist([read_img],[2],None,[256],[0,256])
+            self.Blue_Histogram_3.canvas.axes.plot(histr,color = "b",linewidth=3.0)
+            self.Blue_Histogram_3.canvas.axes.set_ylabel('Y', color='blue')
+            self.Blue_Histogram_3.canvas.axes.set_xlabel('X', color='blue')
+            self.Blue_Histogram_3.canvas.axes.set_title('Blue_Histogram')
+            self.Blue_Histogram_3.canvas.axes.set_facecolor('xkcd:wheat')
+            self.Blue_Histogram_3.canvas.axes.grid()
+            self.Blue_Histogram_3.canvas.draw()
 
     def drawHistogram_tab2(self,img):
         read_img = img.copy()
