@@ -183,11 +183,7 @@ class Ui(QtWidgets.QMainWindow):
         w=np.asarray([[-1,-1,-1],
                       [-1,8,-1],
                       [-1,-1,-1]])
-        print("w")
-        print(w)
-        print()
         piximg = cv2.filter2D(piximg, -1, w, borderType=cv2.BORDER_CONSTANT)
-        print(piximg)
         #img Hasil tab 2
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
         self.hasil.setPixmap(self.rezizeandShow(piximg))
