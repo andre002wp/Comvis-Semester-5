@@ -98,9 +98,9 @@ class Ui(QtWidgets.QMainWindow):
         textout += f"ax = {ax}\n"
         textout += f"yx = {yx}\n"
         textout += f"color depth = {color_depth}\n"
-        print(f"{img[0][0]} image type = {img[0][0].dtype}")
+        # print(f"{img[0][0]} image type = {img[0][0].dtype}")
         textout += f"pixel depth = {self.getPixelDepth(img[0][0].dtype)}\n"
-        print(textout)
+        # print(textout)
         return textout
 
     def getPixelDepth(self,type):
@@ -146,7 +146,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def Kembanginmeh(self):
         piximg = self.img.copy()
-        piximg = self.getPengembangan(piximg)
+        piximg = self.getPengembangan(piximg,thershold = 200)
         #img Hasil tab 2
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
         self.hasil.setPixmap(self.rezizeandShow(piximg))
@@ -191,23 +191,36 @@ class Ui(QtWidgets.QMainWindow):
     
     def Dilate(self):
         piximg = self.img.copy()
+        invert = True
+
+        if(invert == True):
+            piximg = ~piximg
         piximg = self.getGreyVersion(piximg)
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
-        piximg =  cv2.dilate(piximg, w,iterations = 10)
+        piximg =  cv2.dilate(piximg, w,iterations = 1)
+        if(invert == True):
+            piximg = ~piximg
         #img Hasil tab 2
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
         self.hasil.setPixmap(self.rezizeandShow(piximg))
         self.drawHistogram_tab3(piximg)
         
     def Erode(self):
+        #todo buat radio button invert
+        invert = True
+
         piximg = self.img.copy()
+        if(invert == True):
+            piximg = ~piximg
         piximg = self.getGreyVersion(piximg)
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
-        piximg =  cv2.erode(piximg,w,iterations = 10)
+        piximg =  cv2.erode(piximg,w,iterations = 1)
+        if(invert == True):
+            piximg = ~piximg
         #img Hasil tab 2
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
         self.hasil.setPixmap(self.rezizeandShow(piximg))
@@ -274,16 +287,14 @@ class Ui(QtWidgets.QMainWindow):
                 for y in range(yx):
                     for color in range(color_depth):
                         negasi[x][y] = 255-negasi[x][y]
-        elif(color_depth==1):
+        elif(color_depth!=1):
             for x in range(ax):
                 for y in range(yx):
                     for color in range(color_depth):
                         negasi[x][y][color] = 255-negasi[x][y][color]
-                        
-
         return negasi
     
-    def getPengembangan(self,img):
+    def getPengembangan(self,img,thershold):
         pengembangan = img.copy()
         try:
             ax,yx,color_depth = pengembangan.shape
@@ -295,7 +306,7 @@ class Ui(QtWidgets.QMainWindow):
             for x in range(ax):
                 for y in range(yx):
                     for color in range(color_depth):
-                        if(pengembangan[x][y]<150):
+                        if(pengembangan[x][y]<thershold):
                             pengembangan[x][y] = 0
                         else:
                             pengembangan[x][y] = 255
@@ -303,7 +314,7 @@ class Ui(QtWidgets.QMainWindow):
             for x in range(ax):
                 for y in range(yx):
                     for color in range(color_depth):
-                        if(pengembangan[x][y][color]<150):
+                        if(pengembangan[x][y][color]<thershold):
                             pengembangan[x][y][color] = 0
                         else:
                             pengembangan[x][y][color] = 255
@@ -371,19 +382,26 @@ class Ui(QtWidgets.QMainWindow):
             ax,yx = read_img.shape
             color_depth = 1
 
+
         if(color_depth==1):
+            # clean other Histogram
             self.Red_Histogram_3.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
-            self.Red_Histogram_3.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
-            self.Red_Histogram_3.canvas.axes.set_ylabel('Y', color='black')
-            self.Red_Histogram_3.canvas.axes.set_xlabel('X', color='black')
-            self.Red_Histogram_3.canvas.axes.set_title('Greyscale Histogram')
-            self.Red_Histogram_3.canvas.axes.set_facecolor('xkcd:wheat')
-            self.Red_Histogram_3.canvas.axes.grid()
             self.Red_Histogram_3.canvas.draw()
+            self.Blue_Histogram_3.canvas.axes.clear()
+            self.Blue_Histogram_3.canvas.draw()
+
+            self.Green_Histogram_3.canvas.axes.clear()
+            histr = cv2.calcHist(read_img,[0],None,[256],[0,256])
+            self.Green_Histogram_3.canvas.axes.plot(histr,color = 'k',linewidth=3.0)
+            self.Green_Histogram_3.canvas.axes.set_ylabel('Y', color='black')
+            self.Green_Histogram_3.canvas.axes.set_xlabel('X', color='black')
+            self.Green_Histogram_3.canvas.axes.set_title('Greyscale Histogram')
+            self.Green_Histogram_3.canvas.axes.set_facecolor('xkcd:wheat')
+            self.Green_Histogram_3.canvas.axes.grid()
+            self.Green_Histogram_3.canvas.draw()
         else:
             self.Red_Histogram_3.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[0],None,[256],[0,256])
             self.Red_Histogram_3.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
             self.Red_Histogram_3.canvas.axes.set_ylabel('Y', color='red')
             self.Red_Histogram_3.canvas.axes.set_xlabel('X', color='red')
@@ -393,7 +411,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Red_Histogram_3.canvas.draw()
 
             self.Green_Histogram_3.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[1],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[1],None,[256],[0,256])
             self.Green_Histogram_3.canvas.axes.plot(histr,color = 'g',linewidth=3.0)
             self.Green_Histogram_3.canvas.axes.set_ylabel('Y', color='green')
             self.Green_Histogram_3.canvas.axes.set_xlabel('X', color='green')
@@ -403,7 +421,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Green_Histogram_3.canvas.draw()
 
             self.Blue_Histogram_3.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[2],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[2],None,[256],[0,256])
             self.Blue_Histogram_3.canvas.axes.plot(histr,color = "b",linewidth=3.0)
             self.Blue_Histogram_3.canvas.axes.set_ylabel('Y', color='blue')
             self.Blue_Histogram_3.canvas.axes.set_xlabel('X', color='blue')
@@ -422,18 +440,24 @@ class Ui(QtWidgets.QMainWindow):
             color_depth = 1
 
         if(color_depth==1):
+            # clean other Histogram
             self.Red_Histogram_2.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
-            self.Red_Histogram_2.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
-            self.Red_Histogram_2.canvas.axes.set_ylabel('Y', color='black')
-            self.Red_Histogram_2.canvas.axes.set_xlabel('X', color='black')
-            self.Red_Histogram_2.canvas.axes.set_title('Greyscale Histogram')
-            self.Red_Histogram_2.canvas.axes.set_facecolor('xkcd:wheat')
-            self.Red_Histogram_2.canvas.axes.grid()
             self.Red_Histogram_2.canvas.draw()
+            self.Blue_Histogram_2.canvas.axes.clear()
+            self.Blue_Histogram_2.canvas.draw()
+
+            self.Green_Histogram_2.canvas.axes.clear()
+            histr = cv2.calcHist(read_img,[0],None,[256],[0,256])
+            self.Green_Histogram_2.canvas.axes.plot(histr,color = 'k',linewidth=3.0)
+            self.Green_Histogram_2.canvas.axes.set_ylabel('Y', color='black')
+            self.Green_Histogram_2.canvas.axes.set_xlabel('X', color='black')
+            self.Green_Histogram_2.canvas.axes.set_title('Greyscale Histogram')
+            self.Green_Histogram_2.canvas.axes.set_facecolor('xkcd:wheat')
+            self.Green_Histogram_2.canvas.axes.grid()
+            self.Green_Histogram_2.canvas.draw()
         else:
             self.Red_Histogram_2.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[0],None,[256],[0,256])
             self.Red_Histogram_2.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
             self.Red_Histogram_2.canvas.axes.set_ylabel('Y', color='red')
             self.Red_Histogram_2.canvas.axes.set_xlabel('X', color='red')
@@ -443,7 +467,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Red_Histogram_2.canvas.draw()
 
             self.Green_Histogram_2.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[1],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[1],None,[256],[0,256])
             self.Green_Histogram_2.canvas.axes.plot(histr,color = 'g',linewidth=3.0)
             self.Green_Histogram_2.canvas.axes.set_ylabel('Y', color='green')
             self.Green_Histogram_2.canvas.axes.set_xlabel('X', color='green')
@@ -453,7 +477,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Green_Histogram_2.canvas.draw()
 
             self.Blue_Histogram_2.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[2],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[2],None,[256],[0,256])
             self.Blue_Histogram_2.canvas.axes.plot(histr,color = "b",linewidth=3.0)
             self.Blue_Histogram_2.canvas.axes.set_ylabel('Y', color='blue')
             self.Blue_Histogram_2.canvas.axes.set_xlabel('X', color='blue')
@@ -461,6 +485,10 @@ class Ui(QtWidgets.QMainWindow):
             self.Blue_Histogram_2.canvas.axes.set_facecolor('xkcd:wheat')
             self.Blue_Histogram_2.canvas.axes.grid()
             self.Blue_Histogram_2.canvas.draw()
+
+        print("histogram")
+        print(read_img)
+        print(f"histogram size : {read_img[0][0]}")
     
     def drawHistogram_tab1(self,img):
         read_img = img.copy()
@@ -472,18 +500,24 @@ class Ui(QtWidgets.QMainWindow):
             color_depth = 1
 
         if(color_depth==1):
+            # clean other Histogram
             self.Red_Histogram.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
-            self.Red_Histogram.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
-            self.Red_Histogram.canvas.axes.set_ylabel('Y', color='black')
-            self.Red_Histogram.canvas.axes.set_xlabel('X', color='black')
-            self.Red_Histogram.canvas.axes.set_title('Greyscale Histogram')
-            self.Red_Histogram.canvas.axes.set_facecolor('xkcd:wheat')
-            self.Red_Histogram.canvas.axes.grid()
             self.Red_Histogram.canvas.draw()
+            self.Blue_Histogram.canvas.axes.clear()
+            self.Blue_Histogram.canvas.draw()
+
+            self.Histogram.canvas.axes.clear()
+            histr = cv2.calcHist(read_img,[0],None,[256],[0,256])
+            self.Histogram.canvas.axes.plot(histr,color = 'k',linewidth=3.0)
+            self.Histogram.canvas.axes.set_ylabel('Y', color='black')
+            self.Histogram.canvas.axes.set_xlabel('X', color='black')
+            self.Histogram.canvas.axes.set_title('Greyscale Histogram')
+            self.Histogram.canvas.axes.set_facecolor('xkcd:wheat')
+            self.Histogram.canvas.axes.grid()
+            self.Histogram.canvas.draw()
         else:
             self.Red_Histogram.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[0],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[0],None,[256],[0,256])
             self.Red_Histogram.canvas.axes.plot(histr,color = 'r',linewidth=3.0)
             self.Red_Histogram.canvas.axes.set_ylabel('Y', color='red')
             self.Red_Histogram.canvas.axes.set_xlabel('X', color='red')
@@ -493,7 +527,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Red_Histogram.canvas.draw()
 
             self.Histogram.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[1],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[1],None,[256],[0,256])
             self.Histogram.canvas.axes.plot(histr,color = 'g',linewidth=3.0)
             self.Histogram.canvas.axes.set_ylabel('Y', color='green')
             self.Histogram.canvas.axes.set_xlabel('X', color='green')
@@ -503,7 +537,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Histogram.canvas.draw()
 
             self.Blue_Histogram.canvas.axes.clear()
-            histr = cv2.calcHist([read_img],[2],None,[256],[0,256])
+            histr = cv2.calcHist(read_img,[2],None,[256],[0,256])
             self.Blue_Histogram.canvas.axes.plot(histr,color = "b",linewidth=3.0)
             self.Blue_Histogram.canvas.axes.set_ylabel('Y', color='blue')
             self.Blue_Histogram.canvas.axes.set_xlabel('X', color='blue')
