@@ -866,10 +866,16 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="Histogram" name="Red_Histogram_3" native="true">
-            <property name="autoFillBackground">
-             <bool>true</bool>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_12">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>30</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Green Value :</string>
             </property>
            </widget>
           </item>
@@ -883,19 +889,6 @@
             </property>
             <property name="text">
              <string>Red Value :</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_12">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>30</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Green Value :</string>
             </property>
            </widget>
           </item>
@@ -914,6 +907,13 @@
           </item>
           <item row="1" column="1">
            <widget class="Histogram" name="Green_Histogram_3" native="true"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="Histogram" name="Red_Histogram_3" native="true">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
