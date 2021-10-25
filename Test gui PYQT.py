@@ -190,34 +190,42 @@ class Ui(QtWidgets.QMainWindow):
         self.drawHistogram_tab3(piximg)
     
     def Dilate(self):
-        self.txt_iterasi = self.findChild(QtWidgets.QTextEdit, 'txt_tab3_iterasi')
-
+        self.txt_iterasi = self.findChild(QtWidgets.QLineEdit, 'txt_tab3_iterasi')
         try:
-            self.txt_iterasi = self.findChild(QtWidgets.QTextEdit, 'txt_tab3_iterasi')
-            print(self.txt_iterasi.text())
-            # iterations = self.txt_iterasi.text()
-            iterations = 5
+            iterasi = int(self.txt_iterasi.text())
         except:
-            iterations = 5
+            iterasi = 1
+        print("iterasi = ",iterasi)
+        #todo buat radio button invert
+        invert = True
 
         piximg = self.img.copy()
-        invert = True
 
         if(invert == True):
             piximg = ~piximg
+
         piximg = self.getGreyVersion(piximg)
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
-        piximg =  cv2.dilate(piximg, w,iterations = 5)
+        piximg =  cv2.dilate(piximg, w,iterations = iterasi)
+
         if(invert == True):
             piximg = ~piximg
+
         #img Hasil tab 2
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
         self.hasil.setPixmap(self.rezizeandShow(piximg))
         self.drawHistogram_tab3(piximg)
         
     def Erode(self):
+        self.txt_iterasi = self.findChild(QtWidgets.QLineEdit, 'txt_tab3_iterasi')
+        try:
+            iterasi = int(self.txt_iterasi.text())
+        except:
+            iterasi = 1
+        print("iterasi = ",iterasi)
+
         #todo buat radio button invert
         invert = True
 
@@ -228,7 +236,7 @@ class Ui(QtWidgets.QMainWindow):
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
-        piximg =  cv2.erode(piximg,w,iterations = 5)
+        piximg =  cv2.erode(piximg,w,iterations = iterasi)
         if(invert == True):
             piximg = ~piximg
         #img Hasil tab 2
