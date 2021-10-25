@@ -190,6 +190,16 @@ class Ui(QtWidgets.QMainWindow):
         self.drawHistogram_tab3(piximg)
     
     def Dilate(self):
+        self.txt_iterasi = self.findChild(QtWidgets.QTextEdit, 'txt_tab3_iterasi')
+
+        try:
+            self.txt_iterasi = self.findChild(QtWidgets.QTextEdit, 'txt_tab3_iterasi')
+            print(self.txt_iterasi.text())
+            # iterations = self.txt_iterasi.text()
+            iterations = 5
+        except:
+            iterations = 5
+
         piximg = self.img.copy()
         invert = True
 
@@ -199,7 +209,7 @@ class Ui(QtWidgets.QMainWindow):
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
-        piximg =  cv2.dilate(piximg, w,iterations = 1)
+        piximg =  cv2.dilate(piximg, w,iterations = 5)
         if(invert == True):
             piximg = ~piximg
         #img Hasil tab 2
@@ -218,7 +228,7 @@ class Ui(QtWidgets.QMainWindow):
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
-        piximg =  cv2.erode(piximg,w,iterations = 1)
+        piximg =  cv2.erode(piximg,w,iterations = 5)
         if(invert == True):
             piximg = ~piximg
         #img Hasil tab 2
