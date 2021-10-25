@@ -197,7 +197,7 @@ class Ui(QtWidgets.QMainWindow):
             iterasi = 1
         print("iterasi = ",iterasi)
         #todo buat radio button invert
-        invert = True
+        invert = False
 
         piximg = self.img.copy()
 
@@ -227,7 +227,7 @@ class Ui(QtWidgets.QMainWindow):
         print("iterasi = ",iterasi)
 
         #todo buat radio button invert
-        invert = True
+        invert = False
 
         piximg = self.img.copy()
         if(invert == True):
