@@ -49,6 +49,12 @@ class Ui(QtWidgets.QMainWindow):
         self.btnErosi = self.findChild(QtWidgets.QPushButton, 'btnErosi')
         self.btnErosi.clicked.connect(self.Erode)
 
+        #tab 3
+        self.radio_tab3_white = self.findChild(QtWidgets.QRadioButton, 'radio_white_background_tab3')
+        self.radio_tab3_white.clicked.connect(self.CheckTab3_white)
+        self.radio_tab3_black = self.findChild(QtWidgets.QRadioButton, 'radio_black_background_tab3')
+        self.radio_tab3_black.clicked.connect(self.CheckTab3_black)
+
         self.addToolBar(NavigationToolbar(self.Histogram.canvas, self))
 
         self.show()
@@ -197,7 +203,7 @@ class Ui(QtWidgets.QMainWindow):
             iterasi = 1
         print("iterasi = ",iterasi)
         #todo buat radio button invert
-        invert = False
+        invert = self.getCheckedButtonTab3()
 
         piximg = self.img.copy()
 
@@ -227,7 +233,7 @@ class Ui(QtWidgets.QMainWindow):
         print("iterasi = ",iterasi)
 
         #todo buat radio button invert
-        invert = False
+        invert = self.getCheckedButtonTab3()
 
         piximg = self.img.copy()
         if(invert == True):
@@ -390,7 +396,24 @@ class Ui(QtWidgets.QMainWindow):
         mirror = self.getMirrorVertikal(mirror)
         return mirror
 
+    def getCheckedButtonTab3(self):
+        if(self.radio_tab3_black.isChecked()):
+            return True
+        else:
+            return False
 
+
+    def CheckTab3_white(self):
+        self.radio_tab3_white.setChecked(True)
+        self.radio_tab3_black.setChecked(False)
+
+    def CheckTab3_black(self):
+        self.radio_tab3_white.setChecked(False)
+        self.radio_tab3_black.setChecked(True)
+        
+        
+
+    ################################################### Draw Histogram
     def drawHistogram_tab3(self,img):
         read_img = img.copy()
 
