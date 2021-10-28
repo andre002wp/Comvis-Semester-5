@@ -4,6 +4,7 @@
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QImage,QPixmap
+from scipy import ndimage
 import sys
 import os
 import cv2
@@ -49,6 +50,27 @@ class Ui(QtWidgets.QMainWindow):
         self.btnErosi = self.findChild(QtWidgets.QPushButton, 'btnErosi')
         self.btnErosi.clicked.connect(self.Erode)
 
+        self.btnSobel = self.findChild(QtWidgets.QPushButton, 'btnSobel')
+        self.btnSobel.clicked.connect(self.Sobel)
+
+        self.btnPrewitt = self.findChild(QtWidgets.QPushButton, 'btnPrewitt')
+        self.btnPrewitt.clicked.connect(self.Prewitt)
+
+        self.btnLaplace = self.findChild(QtWidgets.QPushButton, 'btnLaplace')
+        self.btnLaplace.clicked.connect(self.Laplace)
+
+        self.btnRobert = self.findChild(QtWidgets.QPushButton, 'btnRobert')
+        self.btnRobert.clicked.connect(self.Robert)
+
+        self.btnCanny = self.findChild(QtWidgets.QPushButton, 'btnCanny')
+        self.btnCanny.clicked.connect(self.Cannyy)
+
+        self.btnHoughLine = self.findChild(QtWidgets.QPushButton, 'btnHoughLine')
+        self.btnHoughLine.clicked.connect(self.HoughLine)
+
+        self.btnHoughCircle = self.findChild(QtWidgets.QPushButton, 'btnHoughCircle')
+        self.btnHoughCircle.clicked.connect(self.HoughCircle)
+
         #tab 3
         self.radio_tab3_white = self.findChild(QtWidgets.QRadioButton, 'radio_white_background_tab3')
         self.radio_tab3_white.clicked.connect(self.CheckTab3_white)
@@ -83,6 +105,11 @@ class Ui(QtWidgets.QMainWindow):
         #img Asli tab 3
         self.asli_3_togrey = self.findChild(QtWidgets.QLabel, 'image_Asli_2')
         self.asli_3_togrey.setPixmap(self.rezizeandShow(self.getGreyVersion(self.img)))
+        #img Asli tab 4
+        self.asli_4_togrey = self.findChild(QtWidgets.QLabel, 'image_Asli_3')
+        self.asli_4_togrey.setPixmap(self.rezizeandShow(self.getGreyVersion(self.img)))
+
+
 
         #img props
         self.imgProperties = self.findChild(QtWidgets.QTextEdit, 'txt_ImgProperties_2')
@@ -250,10 +277,134 @@ class Ui(QtWidgets.QMainWindow):
         self.hasil.setPixmap(self.rezizeandShow(piximg))
         self.drawHistogram_tab3(piximg)
 
+    ### TAB 4 Func
+    def Sobel(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        piximg = cv2.GaussianBlur(piximg,(3,3),0)
+
+        sobx = np.array([[-1,0,1], [-2,0,2], [-1,0,1]])
+        soby = np.array([[1,2,1], [0,0,0], [-1,-2,-1]])
+        sobelx = cv2.filter2D(piximg, -1, sobx)
+        sobely = cv2.filter2D(piximg, -1, soby)
+        sobel = sobelx + sobely
+
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+        self.hasil.setPixmap(self.rezizeandShow(sobel))
+
+    def Prewitt(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        piximg = cv2.GaussianBlur(piximg,(3,3),0)
+
+        perx = np.array([[-1,0,1], [-1,0,1], [-1,0,1]])
+        pery = np.array([[1,1,1], [0,0,0], [-1,-1,-1]])
+        prewittx = cv2.filter2D(piximg, -1, perx)
+        prewitty = cv2.filter2D(piximg, -1, pery)
+        prewitt = prewittx + prewitty
+
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+        self.hasil.setPixmap(self.rezizeandShow(prewitt))
+
+    def Laplace(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        piximg = cv2.GaussianBlur(piximg,(3,3),0)
+
+        lapx = np.array([[-1,0,1], [-1,8,1], [-1,-1,-1]])
+        lapy = np.array([[1,-2,1], [-2,4,-2], [1,2,1]])
+        laplacex = cv2.filter2D(piximg, -1, lapx)
+        laplacey = cv2.filter2D(piximg, -1, lapy)
+        laplace = laplacex + laplacey
+
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+        self.hasil.setPixmap(self.rezizeandShow(laplace))
+
+    def Robert(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        piximg = cv2.GaussianBlur(piximg,(3,3),0)
+
+        robx = np.array([[1,0], [0,-1]])
+        roby = np.array([[0,-1], [-1,0]])
+        robertx = cv2.filter2D(piximg, -1, robx)
+        roberty = cv2.filter2D(piximg, -1, roby)
+        robert = robertx + roberty
+
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+        self.hasil.setPixmap(self.rezizeandShow(robert))
+
+    def Cannyy(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        piximg = cv2.GaussianBlur(piximg,(3,3),0)
+
+        canny_output = cv2.Canny(piximg,80,50)
+        # canny = cv2.HoughLines(canny_output, 1, np.pi / 180,200)
+
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+        self.hasil.setPixmap(self.rezizeandShow(canny_output))
+
+    # def HoughLine(self):
+    #     piximg = self.img.copy()
+    #     ab = cv2.cvtColor(piximg, cv2.COLOR_BGR2GRAY)
+    #     # piximg = self.getGreyVersion(piximg)
+        
+    #     canny_output = cv2.Canny(ab, 50, 150,apertureSize=3)
+    #     lines = cv2.HoughLines(canny_output, 1, np.pi / 180,200)
+
+    #     for line in lines:
+    #         rho, theta = line[0]
+    #         a = np.cos(theta)
+    #         b = np.sin(theta)
+
+    #         x0 = a*rho
+    #         y0 = b*rho
+
+    #         x1 = int(x0+1000*(-b))
+    #         y1 = int(y0+1000*(a))
+    #         x2 = int(x0-1000*(-b))
+    #         y2 = int(y0-1000*(1))
+
+    #         cv2.line(ab, (x1,y1), (x2,y2), (0,0,255), 2)
+
+    #     self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+    #     self.hasil.setPixmap(self.rezizeandShow(ab))
+    def HoughLine(self):
+        piximg = self.img.copy()
+        piximg = cv2.cvtColor(piximg, cv2.COLOR_BGR2GRAY)
+        # piximg = self.getGreyVersion(piximg)
+        
+        canny_output = cv2.Canny(piximg, 75, 150,apertureSize=3)
+        lines = cv2.HoughLinesP(canny_output, 1, np.pi / 180,30, maxLineGap=200)
+
+        for line in lines:
+            x1,y1,x2,y2 = line[0]
+            cv2.line(piximg, (x1,y1), (x2,y2), (0,255,0), 3)
+
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
+    
+
+    def HoughCircle(self):
+        piximg = self.img.copy()
+        piximg = self.getGreyVersion(piximg)
+        piximg = cv2.medianBlur(piximg, 5)
+
+        HoughCircle = cv2.HoughCircles(piximg, cv2.HOUGH_GRADIENT,1,20, param1=50, param2=30, minRadius=0, maxRadius=0)
+        HoughCircle = np.uint16(np.around(HoughCircle))
+        for i in HoughCircle[0, :]:
+            #outer circle
+            cv2.circle(piximg, (i[0], i[1]), i[2], (0,255,0), 2)
+            #center circle
+            cv2.circle(piximg, (i[0], i[1]), 2, (0,255,0), 3)
+        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+        self.hasil.setPixmap(self.rezizeandShow(piximg))
 
     #################################################### helper func
     # resize main
     def rezizeandShow(self,img):
+        
         img_temp = img.copy()
         try:
             y,x,color = img_temp.shape
