@@ -92,32 +92,33 @@ class Ui(QtWidgets.QMainWindow):
         openFileDialog = QFileDialog.getOpenFileName(self,"select Image File",os.getcwd(),"Image Files (*.jpg *.gif *.bmp *.png *.tiff *.jfif)")
         fileimg = openFileDialog[0]
 
-        # fileimg = os.getcwd() + "/Dots.png"
-        #use full ABSOLUTE path to the image, not relative
-        self.imageMain = self.findChild(QtWidgets.QLabel, 'image_Loaded')
-        self.img = cv2.imread(fileimg,cv2.IMREAD_UNCHANGED)
+        if(len(fileimg)>4):
+            # fileimg = os.getcwd() + "/Dots.png"
+            #use full ABSOLUTE path to the image, not relative
+            self.imageMain = self.findChild(QtWidgets.QLabel, 'image_Loaded')
+            self.img = cv2.imread(fileimg,cv2.IMREAD_UNCHANGED)
 
-        self.imageMain.setPixmap(self.rezizeandShow(self.img))
-        self.drawHistogram_tab1(self.img)
-        #img Asli tab 2
-        self.asli2 = self.findChild(QtWidgets.QLabel, 'image_Asli')
-        self.asli2.setPixmap(self.rezizeandShow(self.img))
-        #img Asli tab 3
-        self.asli_3_togrey = self.findChild(QtWidgets.QLabel, 'image_Asli_2')
-        self.asli_3_togrey.setPixmap(self.rezizeandShow(self.getGreyVersion(self.img)))
-        #img Asli tab 4
-        self.asli_4_togrey = self.findChild(QtWidgets.QLabel, 'image_Asli_3')
-        self.asli_4_togrey.setPixmap(self.rezizeandShow(self.getGreyVersion(self.img)))
+            self.imageMain.setPixmap(self.rezizeandShow(self.img))
+            self.drawHistogram_tab1(self.img)
+            #img Asli tab 2
+            self.asli2 = self.findChild(QtWidgets.QLabel, 'image_Asli')
+            self.asli2.setPixmap(self.rezizeandShow(self.img))
+            #img Asli tab 3
+            self.asli_3_togrey = self.findChild(QtWidgets.QLabel, 'image_Asli_2')
+            self.asli_3_togrey.setPixmap(self.rezizeandShow(self.getGreyVersion(self.img)))
+            #img Asli tab 4
+            self.asli_4_togrey = self.findChild(QtWidgets.QLabel, 'image_Asli_3')
+            self.asli_4_togrey.setPixmap(self.rezizeandShow(self.getGreyVersion(self.img)))
 
 
 
-        #img props
-        self.imgProperties = self.findChild(QtWidgets.QTextEdit, 'txt_ImgProperties_2')
-        self.imgProperties.setPlainText(f"filepath = {fileimg}\n"+ self.getImageProperties(self.img))
+            #img props
+            self.imgProperties = self.findChild(QtWidgets.QTextEdit, 'txt_ImgProperties_2')
+            self.imgProperties.setPlainText(f"filepath = {fileimg}\n"+ self.getImageProperties(self.img))
 
-        #img val
-        self.imgValues = self.findChild(QtWidgets.QTextEdit, 'txt_PixelValue_2')
-        self.imgValues.setPlainText(self.getPixelValue(self.img))
+            #img val
+            self.imgValues = self.findChild(QtWidgets.QTextEdit, 'txt_PixelValue_2')
+            self.imgValues.setPlainText(self.getPixelValue(self.img))
 
     #### TAB 1 Func
     def getImageProperties(self,img):
@@ -237,7 +238,7 @@ class Ui(QtWidgets.QMainWindow):
         if(invert == True):
             piximg = ~piximg
 
-        piximg = self.getGreyVersion(piximg)
+        piximg = self.getBinaryVersion(piximg,thershold=150)
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
@@ -265,7 +266,7 @@ class Ui(QtWidgets.QMainWindow):
         piximg = self.img.copy()
         if(invert == True):
             piximg = ~piximg
-        piximg = self.getGreyVersion(piximg)
+        piximg = self.getBinaryVersion(piximg,thershold=150)
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
@@ -280,7 +281,7 @@ class Ui(QtWidgets.QMainWindow):
     ### TAB 4 Func
     def Sobel(self):
         piximg = self.img.copy()
-        piximg = self.getGreyVersion(piximg)
+        piximg = self.getBinaryVersion(piximg,thershold=150)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
         sobx = np.array([[-1,0,1], [-2,0,2], [-1,0,1]])
@@ -294,7 +295,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def Prewitt(self):
         piximg = self.img.copy()
-        piximg = self.getGreyVersion(piximg)
+        piximg = self.getBinaryVersion(piximg,thershold=150)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
         perx = np.array([[-1,0,1], [-1,0,1], [-1,0,1]])
@@ -308,7 +309,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def Laplace(self):
         piximg = self.img.copy()
-        piximg = self.getGreyVersion(piximg)
+        piximg = self.getBinaryVersion(piximg,thershold=150)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
         lapx = np.array([[-1,0,1], [-1,8,1], [-1,-1,-1]])
@@ -322,7 +323,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def Robert(self):
         piximg = self.img.copy()
-        piximg = self.getGreyVersion(piximg)
+        piximg = self.getBinaryVersion(piximg,thershold=150)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
         robx = np.array([[1,0], [0,-1]])
@@ -337,13 +338,12 @@ class Ui(QtWidgets.QMainWindow):
     def Cannyy(self):
         piximg = self.img.copy()
         piximg = self.getGreyVersion(piximg)
-        piximg = cv2.GaussianBlur(piximg,(3,3),0)
+        piximg = cv2.GaussianBlur(src = piximg,ksize = (3,3),sigmaX = 1,sigmaY = 1,borderType = cv2.BORDER_DEFAULT)
 
-        canny_output = cv2.Canny(piximg,80,50)
-        # canny = cv2.HoughLines(canny_output, 1, np.pi / 180,200)
+        canny_output = cv2.Canny(image=piximg, threshold1 = 80 ,threshold2 = 200)
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShow(canny_output))
+        self.hasil.setPixmap(self.rezizeandShowBig(canny_output))
 
     # def HoughLine(self):
     #     piximg = self.img.copy()
@@ -372,34 +372,41 @@ class Ui(QtWidgets.QMainWindow):
     #     self.hasil.setPixmap(self.rezizeandShow(ab))
     def HoughLine(self):
         piximg = self.img.copy()
-        piximg = cv2.cvtColor(piximg, cv2.COLOR_BGR2GRAY)
-        # piximg = self.getGreyVersion(piximg)
-        
-        canny_output = cv2.Canny(piximg, 75, 150,apertureSize=3)
-        lines = cv2.HoughLinesP(canny_output, 1, np.pi / 180,30, maxLineGap=200)
+        _greyforcanny = self.getGreyVersion(piximg)
+        # gambar greyscale lalu dideteksi tepi pada setiap objeknya
+        canny_output = cv2.Canny(image=_greyforcanny, threshold1 = 150 ,threshold2 = 200)
+        # gambar greyscale lalu dideteksi tepi pada setiap objeknya
+        lines = cv2.HoughLinesP(canny_output, 1, np.pi / 180,10,minLineLength =10, maxLineGap=25)
 
         for line in lines:
             x1,y1,x2,y2 = line[0]
-            cv2.line(piximg, (x1,y1), (x2,y2), (0,255,0), 3)
+            cv2.line(piximg, (x1,y1), (x2,y2), (255,0,0), 3)
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        self.hasil.setPixmap(self.rezizeandShowBig(piximg))
     
 
     def HoughCircle(self):
         piximg = self.img.copy()
+        try:
+            y,x,color = piximg.shape
+        except:
+            y,x = piximg.shape
+            color = 1
+
         piximg = self.getGreyVersion(piximg)
         piximg = cv2.medianBlur(piximg, 5)
 
-        HoughCircle = cv2.HoughCircles(piximg, cv2.HOUGH_GRADIENT,1,20, param1=50, param2=30, minRadius=0, maxRadius=0)
-        HoughCircle = np.uint16(np.around(HoughCircle))
-        for i in HoughCircle[0, :]:
-            #outer circle
-            cv2.circle(piximg, (i[0], i[1]), i[2], (0,255,0), 2)
-            #center circle
-            cv2.circle(piximg, (i[0], i[1]), 2, (0,255,0), 3)
-        self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShow(piximg))
+        HoughCircle = cv2.HoughCircles(piximg, cv2.HOUGH_GRADIENT,1,y/16, param1=100, param2=30, minRadius=20, maxRadius=70)
+        if HoughCircle is not None:
+            HoughCircle = np.uint16(np.around(HoughCircle))
+            for i in HoughCircle[0, :]:
+                #outer circle
+                cv2.circle(piximg, (i[0], i[1]), i[2], (0,255,0), 2)
+                #center circle
+                cv2.circle(piximg, (i[0], i[1]), 2, (0,255,0), 3)
+            self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+            self.hasil.setPixmap(self.rezizeandShow(piximg))
 
     #################################################### helper func
     # resize main
@@ -437,6 +444,39 @@ class Ui(QtWidgets.QMainWindow):
         
         return imgresized
 
+    def rezizeandShowBig(self,img):
+        
+        img_temp = img.copy()
+        try:
+            y,x,color = img_temp.shape
+        except:
+            y,x = img.shape
+            color = 1
+        
+        bytesPerLine = 3 * x
+        if(color== 1):
+            _pmap = QImage(img_temp, x, y, x, QImage.Format_Grayscale8)
+        else:
+            _pmap = QImage(img_temp, x, y, bytesPerLine, QImage.Format_RGB888)
+        
+        
+        _pmap = QPixmap(_pmap)
+
+        if(x>500 or y>500):
+            imgresized = _pmap.scaled(500, 500, QtCore.Qt.KeepAspectRatio)
+        else:
+            imgresized = _pmap.scaled(500, 500, QtCore.Qt.KeepAspectRatio)
+
+        # test = _pmap.toImage()
+        # test.pixel(0,0)
+        # for i in range(y):
+        #     for j in range(x):
+        #         print(f"{i,j} : {QtGui.qRed(test.pixel(i,j))},{QtGui.qGreen(test.pixel(i,j))},{QtGui.qBlue(test.pixel(i,j))}")
+
+        
+        
+        return imgresized
+
     def getGreyVersion(self,img):
         grey = img.copy()
         try:
@@ -447,6 +487,11 @@ class Ui(QtWidgets.QMainWindow):
         if(color_depth >1):
             grey = cv2.cvtColor(grey, cv2.COLOR_BGR2GRAY)
         return grey
+
+    def getBinaryVersion(self,img,thershold:int):
+        binary = img.copy()
+        binary = self.getPengembangan(img,thershold)
+        return binary
 
 
     def getNegasi(self,img):
@@ -469,7 +514,7 @@ class Ui(QtWidgets.QMainWindow):
                         negasi[x][y][color] = 255-negasi[x][y][color]
         return negasi
     
-    def getPengembangan(self,img,thershold):
+    def getPengembangan(self,img,thershold = 150):
         pengembangan = img.copy()
         try:
             ax,yx,color_depth = pengembangan.shape
