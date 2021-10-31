@@ -781,7 +781,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Blue_Histogram.canvas.axes.set_title('Blue_Histogram')
             self.Blue_Histogram.canvas.axes.set_facecolor('xkcd:wheat')
             self.Blue_Histogram.canvas.axes.grid()
-            self.Blue_Histogram.canvas.draw()
+            self.Blue_Histogram.canvas.draw() 
 
 
 
