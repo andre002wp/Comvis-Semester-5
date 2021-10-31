@@ -217,7 +217,7 @@ class Ui(QtWidgets.QMainWindow):
         w=np.asarray([[-1,-1,-1],
                       [-1,8,-1],
                       [-1,-1,-1]])
-        piximg = cv2.filter2D(piximg, -1, w, borderType=cv2.BORDER_CONSTANT)
+        piximg = cv2.filter2D(src = piximg,ddepth = -1, kernel = w, borderType=cv2.BORDER_CONSTANT)
         #img Hasil tab 2
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_Convolution')
         self.hasil.setPixmap(self.rezizeandShow(piximg))
@@ -270,7 +270,7 @@ class Ui(QtWidgets.QMainWindow):
         w=np.array([[0,1,0],
                     [1,1,1],
                     [0,1,0]], dtype=np.uint8)
-        piximg =  cv2.erode(piximg,w,iterations = iterasi)
+        piximg = cv2.erode(piximg,w,iterations = iterasi)
         if(invert == True):
             piximg = ~piximg
         #img Hasil tab 2
@@ -281,21 +281,24 @@ class Ui(QtWidgets.QMainWindow):
     ### TAB 4 Func
     def Sobel(self):
         piximg = self.img.copy()
-        piximg = self.getBinaryVersion(piximg,thershold=150)
+        piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
+        sobx = np.array([[-1,0,1], 
+                         [-2,0,2], 
+                         [-1,0,1]])
+        soby = np.array([[1,2,1], 
+                         [0,0,0], 
+                         [-1,-2,-1]])
 
-        sobx = np.array([[-1,0,1], [-2,0,2], [-1,0,1]])
-        soby = np.array([[1,2,1], [0,0,0], [-1,-2,-1]])
-        sobelx = cv2.filter2D(piximg, -1, sobx)
-        sobely = cv2.filter2D(piximg, -1, soby)
-        sobel = sobelx + sobely
+        sobelx = cv2.filter2D(src = piximg, ddepth = -1, kernel = sobx)
+        sobely = cv2.filter2D(src = piximg, ddepth = -1, kernel = soby)
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShowBig(sobel))
+        self.hasil.setPixmap(self.rezizeandShowBig(sobelx+sobely))
 
     def Prewitt(self):
         piximg = self.img.copy()
-        piximg = self.getBinaryVersion(piximg,thershold=150)
+        piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
         perx = np.array([[-1,0,1], [-1,0,1], [-1,0,1]])
@@ -309,31 +312,31 @@ class Ui(QtWidgets.QMainWindow):
 
     def Laplace(self):
         piximg = self.img.copy()
-        piximg = self.getBinaryVersion(piximg,thershold=150)
+        piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
-        lapx = np.array([[-1,0,1], [-1,8,1], [-1,-1,-1]])
-        lapy = np.array([[1,-2,1], [-2,4,-2], [1,2,1]])
-        laplacex = cv2.filter2D(piximg, -1, lapx)
-        laplacey = cv2.filter2D(piximg, -1, lapy)
-        laplace = laplacex + laplacey
+        kernel = np.array([[0,-1,0], 
+                         [-1,4,-1], 
+                         [0,-1,0]])
+        laplace = cv2.filter2D(piximg, -1, kernel)
+        # laplace = cv2.Laplacian(src = piximg,ddepth = -1,ksize = 3)
+        cv2.convertScaleAbs(laplace)
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
         self.hasil.setPixmap(self.rezizeandShowBig(laplace))
 
     def Robert(self):
         piximg = self.img.copy()
-        piximg = self.getBinaryVersion(piximg,thershold=150)
+        piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
         robx = np.array([[1,0], [0,-1]])
         roby = np.array([[0,-1], [-1,0]])
         robertx = cv2.filter2D(piximg, -1, robx)
         roberty = cv2.filter2D(piximg, -1, roby)
-        robert = robertx + roberty
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShowBig(robert))
+        self.hasil.setPixmap(self.rezizeandShowBig(robertx + roberty))
 
     def Cannyy(self):
         piximg = self.img.copy()
@@ -405,6 +408,9 @@ class Ui(QtWidgets.QMainWindow):
                 cv2.circle(piximg, (i[0], i[1]), i[2], (0,255,0), 2)
                 #center circle
                 cv2.circle(piximg, (i[0], i[1]), 2, (0,255,0), 3)
+            self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
+            self.hasil.setPixmap(self.rezizeandShowBig(piximg))
+        else:
             self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
             self.hasil.setPixmap(self.rezizeandShowBig(piximg))
 
