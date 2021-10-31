@@ -291,7 +291,7 @@ class Ui(QtWidgets.QMainWindow):
         sobel = sobelx + sobely
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShow(sobel))
+        self.hasil.setPixmap(self.rezizeandShowBig(sobel))
 
     def Prewitt(self):
         piximg = self.img.copy()
@@ -305,7 +305,7 @@ class Ui(QtWidgets.QMainWindow):
         prewitt = prewittx + prewitty
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShow(prewitt))
+        self.hasil.setPixmap(self.rezizeandShowBig(prewitt))
 
     def Laplace(self):
         piximg = self.img.copy()
@@ -319,7 +319,7 @@ class Ui(QtWidgets.QMainWindow):
         laplace = laplacex + laplacey
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShow(laplace))
+        self.hasil.setPixmap(self.rezizeandShowBig(laplace))
 
     def Robert(self):
         piximg = self.img.copy()
@@ -333,7 +333,7 @@ class Ui(QtWidgets.QMainWindow):
         robert = robertx + roberty
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShow(robert))
+        self.hasil.setPixmap(self.rezizeandShowBig(robert))
 
     def Cannyy(self):
         piximg = self.img.copy()
@@ -406,7 +406,7 @@ class Ui(QtWidgets.QMainWindow):
                 #center circle
                 cv2.circle(piximg, (i[0], i[1]), 2, (0,255,0), 3)
             self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-            self.hasil.setPixmap(self.rezizeandShow(piximg))
+            self.hasil.setPixmap(self.rezizeandShowBig(piximg))
 
     #################################################### helper func
     # resize main
