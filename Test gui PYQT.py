@@ -397,7 +397,7 @@ class Ui(QtWidgets.QMainWindow):
         piximg = self.getGreyVersion(piximg)
         piximg = cv2.medianBlur(piximg, 5)
 
-        HoughCircle = cv2.HoughCircles(piximg, cv2.HOUGH_GRADIENT,1,y/16, param1=100, param2=30, minRadius=20, maxRadius=70)
+        HoughCircle = cv2.HoughCircles(piximg, cv2.HOUGH_GRADIENT,1,y/3, param1=100, param2=30, minRadius=20, maxRadius=70)
         if HoughCircle is not None:
             HoughCircle = np.uint16(np.around(HoughCircle))
             for i in HoughCircle[0, :]:
