@@ -375,7 +375,7 @@ class Ui(QtWidgets.QMainWindow):
         _greyforcanny = self.getGreyVersion(piximg)
         # gambar greyscale lalu dideteksi tepi pada setiap objeknya
         canny_output = cv2.Canny(image=_greyforcanny, threshold1 = 150 ,threshold2 = 200)
-        # gambar greyscale lalu dideteksi tepi pada setiap objeknya
+        # gambar tepi canny dapat dicari linenya menggunakan hough line
         lines = cv2.HoughLinesP(canny_output, 1, np.pi / 180,10,minLineLength =10, maxLineGap=25)
 
         for line in lines:
