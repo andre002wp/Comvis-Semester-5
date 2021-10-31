@@ -376,7 +376,7 @@ class Ui(QtWidgets.QMainWindow):
         # gambar greyscale lalu dideteksi tepi pada setiap objeknya
         canny_output = cv2.Canny(image=_greyforcanny, threshold1 = 150 ,threshold2 = 200)
         # gambar tepi canny dapat dicari linenya menggunakan hough line
-        lines = cv2.HoughLinesP(canny_output, 1, np.pi / 180,10,minLineLength =10, maxLineGap=25)
+        lines = cv2.HoughLinesP(canny_output, 1, np.pi / 180,70,minLineLength =10, maxLineGap=100)
 
         for line in lines:
             x1,y1,x2,y2 = line[0]
@@ -781,7 +781,7 @@ class Ui(QtWidgets.QMainWindow):
             self.Blue_Histogram.canvas.axes.set_title('Blue_Histogram')
             self.Blue_Histogram.canvas.axes.set_facecolor('xkcd:wheat')
             self.Blue_Histogram.canvas.axes.grid()
-            self.Blue_Histogram.canvas.draw()
+            self.Blue_Histogram.canvas.draw() 
 
 
 
