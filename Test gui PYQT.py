@@ -283,26 +283,32 @@ class Ui(QtWidgets.QMainWindow):
         piximg = self.img.copy()
         piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
-        sobx = np.array([[-1,0,1], 
-                         [-2,0,2], 
-                         [-1,0,1]])
-        soby = np.array([[1,2,1], 
-                         [0,0,0], 
-                         [-1,-2,-1]])
-
-        sobelx = cv2.filter2D(src = piximg, ddepth = -1, kernel = sobx)
-        sobely = cv2.filter2D(src = piximg, ddepth = -1, kernel = soby)
+        
+        # sobx = np.array([[-1,0,1], 
+        #                  [-2,0,2], 
+        #                  [-1,0,1]])
+        # soby = np.array([[1,2,1], 
+        #                  [0,0,0], 
+        #                  [-1,-2,-1]])
+        # sobelx = cv2.filter2D(src = piximg, ddepth = -1, kernel = sobx)
+        # sobely = cv2.filter2D(src = piximg, ddepth = -1, kernel = soby)
+        # sobelxy = sobelx+sobely
+        sobelxy = cv2.Sobel(src=piximg, ddepth=-1, dx=1, dy=1, ksize=5)
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
-        self.hasil.setPixmap(self.rezizeandShowBig(sobelx+sobely))
+        self.hasil.setPixmap(self.rezizeandShowBig(sobelxy))
 
     def Prewitt(self):
         piximg = self.img.copy()
         piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
-        perx = np.array([[-1,0,1], [-1,0,1], [-1,0,1]])
-        pery = np.array([[1,1,1], [0,0,0], [-1,-1,-1]])
+        perx = np.array([[1,0,-1], 
+                         [1,0,-1], 
+                         [1,0,-1]])
+        pery = np.array([[1,1,1], 
+                         [0,0,0], 
+                         [-1,-1,-1]])
         prewittx = cv2.filter2D(piximg, -1, perx)
         prewitty = cv2.filter2D(piximg, -1, pery)
         prewitt = prewittx + prewitty
@@ -315,12 +321,7 @@ class Ui(QtWidgets.QMainWindow):
         piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
 
-        kernel = np.array([[0,-1,0], 
-                         [-1,4,-1], 
-                         [0,-1,0]])
-        laplace = cv2.filter2D(piximg, -1, kernel)
-        # laplace = cv2.Laplacian(src = piximg,ddepth = -1,ksize = 3)
-        cv2.convertScaleAbs(laplace)
+        laplace = cv2.Laplacian(src = piximg,ddepth = -1,ksize = 3)
 
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_deteksi_tepi')
         self.hasil.setPixmap(self.rezizeandShowBig(laplace))
@@ -329,9 +330,12 @@ class Ui(QtWidgets.QMainWindow):
         piximg = self.img.copy()
         piximg = self.getGreyVersion(piximg)
         piximg = cv2.GaussianBlur(piximg,(3,3),0)
-
-        robx = np.array([[1,0], [0,-1]])
-        roby = np.array([[0,-1], [-1,0]])
+        robx = np.array([[0,0,0], 
+                         [0,1,0],
+                         [0,0,-1]])
+        roby = np.array([[0,0,0], 
+                         [0,0,1],
+                         [0,-1,0]])
         robertx = cv2.filter2D(piximg, -1, robx)
         roberty = cv2.filter2D(piximg, -1, roby)
 
@@ -376,6 +380,7 @@ class Ui(QtWidgets.QMainWindow):
     def HoughLine(self):
         piximg = self.img.copy()
         _greyforcanny = self.getGreyVersion(piximg)
+        _greyforcanny = cv2.medianBlur(_greyforcanny, 5)
         # gambar greyscale lalu dideteksi tepi pada setiap objeknya
         canny_output = cv2.Canny(image=_greyforcanny, threshold1 = 150 ,threshold2 = 200)
         # gambar tepi canny dapat dicari linenya menggunakan hough line
