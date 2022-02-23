@@ -180,7 +180,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def Kembanginmeh(self):
         piximg = self.img.copy()
-        piximg = self.getPengembangan(piximg,thershold = 200)
+        piximg = self.getPengembangan(piximg,thershold = 230)
         #img Hasil tab 2
         self.hasil = self.findChild(QtWidgets.QLabel, 'image_Hasil')
         self.hasil.setPixmap(self.rezizeandShow(piximg))
