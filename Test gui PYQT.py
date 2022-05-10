@@ -4,7 +4,6 @@
 from PyQt5 import QtWidgets, uic, QtGui, QtCore
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QImage,QPixmap
-from scipy import ndimage
 import sys
 import os
 import cv2
